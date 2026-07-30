@@ -1,7 +1,7 @@
 # 📝 Báo Cáo Thu Hoạch Cá Nhân (Individual Reflection)
 
 **Họ và tên:** Nguyễn Nhật Minh
-**Vai trò trong nhóm:** LLM Integration · Dev · Product Manager
+**Vai trò trong nhóm:** LLM Integration · Dev 
 **Dự án:** VLearn Mini Codelab Generator (Nhóm E402)
 **Khoá học:** Mini Hackathon AI Batch 03 — VinUni AI Thực Chiến
 
