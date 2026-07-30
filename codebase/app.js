@@ -1,4 +1,4 @@
-// VLearn CP2 - Mini Codelab Application Core Logic
+// VLearn CP2 - Mini Codelab Application Core Logic (Real OpenAI API Backend)
 
 // State Management
 const state = {
@@ -7,6 +7,7 @@ const state = {
   activeCodelabId: null,
   activeStep: 1,
   apiKey: '',
+  serverStatus: null,
   
   // Data Pack Mini Codelabs
   codelabs: [
@@ -147,10 +148,21 @@ print(test_guardrail("Tôi có nên đầu tư chứng khoán năm nay không?")
   ]
 };
 
-// Initialize Application
+// Initialize Application & Check Backend Env Status
 document.addEventListener('DOMContentLoaded', () => {
+  checkServerStatus();
   renderApp();
 });
+
+async function checkServerStatus() {
+  try {
+    const res = await fetch('/api/status');
+    state.serverStatus = await res.json();
+    console.log('OpenAI Backend Status:', state.serverStatus);
+  } catch (err) {
+    console.warn('Backend status check offline:', err);
+  }
+}
 
 // Render Main App Structure
 function renderApp() {
@@ -159,7 +171,7 @@ function renderApp() {
     <!-- Top Role Switching Bar -->
     <div class="role-bar">
       <div class="role-info">
-        <span>K4 HACKATHON • CP2 PROTOTYPE</span>
+        <span>K4 HACKATHON • REAL OPENAI API BASELINE</span>
         <span class="role-badge" id="role-display-text">Giao diện: 👨‍🎓 Học viên</span>
       </div>
       <div class="role-switcher">
@@ -220,7 +232,7 @@ function renderApp() {
     <div id="modal-container"></div>
 
     <footer class="vlearn-footer">
-      <p>© 2026 VLearn - Nền tảng học tập VinUni AI Thực Chiến • Giải pháp AI Sinh Mini Codelab (CP2 Prototype)</p>
+      <p>© 2026 VLearn - Nền tảng học tập VinUni AI Thực Chiến • OpenAI API Real Integration Baseline</p>
     </footer>
   `;
 }
@@ -247,7 +259,7 @@ window.scrollToCodelabs = function() {
   if (el) el.scrollIntoView({ behavior: 'smooth' });
 };
 
-// Render Student View (Matching Image Layout)
+// Render Student View
 function renderStudentDashboard() {
   return `
     <!-- Top Section Header -->
@@ -262,7 +274,7 @@ function renderStudentDashboard() {
       </div>
     </div>
 
-    <!-- Welcome Banner Card (Exact Replica of Image) -->
+    <!-- Welcome Banner Card -->
     <div class="welcome-banner">
       <div class="welcome-banner-bg-shape"></div>
       <div class="welcome-banner-content">
@@ -282,7 +294,7 @@ function renderStudentDashboard() {
       </div>
     </div>
 
-    <!-- Statistics Grid (Exact Replica of Image) -->
+    <!-- Statistics Grid -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-icon-box">
@@ -305,7 +317,7 @@ function renderStudentDashboard() {
       </div>
     </div>
 
-    <!-- Wide Action Card (Exact Replica of Image) -->
+    <!-- Wide Action Card -->
     <div class="course-action-card" onclick="scrollToCodelabs()">
       <div class="action-card-left">
         <div class="action-card-icon">
@@ -362,14 +374,14 @@ function renderCoachStudio() {
   return `
     <div class="section-header">
       <div>
-        <div class="breadcrumb-tag">LAB COACH STUDIO • AI AGENT GENERATOR</div>
-        <h1 class="page-title">Tạo Mini Codelab bằng AI Agent</h1>
-        <p class="page-subtitle">Nhập slide bài giảng sáng + repo lab chiều để AI Agent tự tổng hợp Mini Codelab 15 phút cho học viên.</p>
+        <div class="breadcrumb-tag">LAB COACH STUDIO • REAL OPENAI API ENGINE</div>
+        <h1 class="page-title">Tạo Mini Codelab bằng OpenAI API thật</h1>
+        <p class="page-subtitle">Nhập slide bài giảng sáng + repo lab chiều. Hệ thống gọi OpenAI API chạy thật với prompt để sinh kết quả thực tế.</p>
       </div>
     </div>
 
     <div class="coach-studio-card">
-      <form onsubmit="event.preventDefault(); handleCoachGenerate();">
+      <form onsubmit="event.preventDefault(); handleCoachGenerateReal();">
         <div class="form-group">
           <label class="form-label">1. Slide / Chủ đề Bài giảng Buổi sáng</label>
           <select id="coach-morning-slide" class="form-control">
@@ -385,23 +397,26 @@ function renderCoachStudio() {
         </div>
 
         <div class="form-group">
-          <label class="form-label">3. Ràng buộc & Cấu hình Code Agent (Constraint Policy)</label>
+          <label class="form-label">3. Ràng buộc & Cấu hình Code Agent (Constraint Policy Prompt)</label>
           <div class="checkbox-group mb-3">
             <label class="checkbox-label"><input type="checkbox" checked disabled> <code>openai</code> API</label>
             <label class="checkbox-label"><input type="checkbox" checked> <code>pydantic</code></label>
             <label class="checkbox-label"><input type="checkbox" checked> <code>python-dotenv</code></label>
             <label class="checkbox-label"><input type="checkbox"> <code>fastapi</code></label>
           </div>
-          <textarea id="coach-prompt-rules" class="form-control" rows="3" placeholder="Ràng buộc prompt...">Chỉ sinh code Python đơn giản dưới 50 dòng, có comment giải thích vòng lặp ReAct, đính kèm 1 câu hỏi kiểm tra HAX G10.</textarea>
+          <textarea id="coach-prompt-rules" class="form-control" rows="3" placeholder="Ràng buộc prompt...">Sinh code Python ReAct Agent dưới 50 dòng, có comment giải thích 4 bước Thought-Action-Observation-Final, kèm 1 câu hỏi kiểm tra HAX G10.</textarea>
         </div>
 
         <div class="form-group">
-          <label class="form-label">4. Cấu hình OpenAI API (Tùy chọn cho Live Agent Call)</label>
-          <input type="password" id="coach-api-key" class="form-control" placeholder="sk-proj-... (Để trống sẽ sử dụng AI Agent Generator có sẵn)">
+          <label class="form-label">4. Cấu hình OpenAI API Key (Nhập key trực tiếp hoặc tự động đọc từ file .env)</label>
+          <input type="password" id="coach-api-key" class="form-control" placeholder="sk-proj-... (Nếu để trống sẽ sử dụng OPENAI_API_KEY từ file .env)">
+          <small style="color: var(--text-muted); font-size: 11px; margin-top: 4px; display: block;">
+            💡 Hệ thống tự động load key từ file <code>.env</code> ở thư mục gốc project.
+          </small>
         </div>
 
-        <button type="submit" class="btn-primary" style="font-size: 15px; padding: 12px 24px;">
-          <span>✨ Sinh Mini Codelab bằng AI Agent</span>
+        <button type="submit" id="btn-generate-submit" class="btn-primary" style="font-size: 15px; padding: 12px 24px;">
+          <span>✨ Sinh Mini Codelab với OpenAI API Thật</span>
         </button>
       </form>
 
@@ -483,25 +498,24 @@ function renderStepContent(lab, step) {
   if (step.num === 2) {
     return `
       <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-        Gõ và chạy đoạn code Python ReAct Agent dưới đây để xem log tương tác thực tế:
+        Gõ và chạy đoạn code Python ReAct Agent dưới đây để gửi prompt thực tế gọi OpenAI API Runner:
       </p>
 
       <div class="playground-container">
         <div class="code-editor-box">
           <div class="box-header">
             <span>🐍 Python Mini ReAct Sandbox</span>
-            <button class="btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="resetCode('${lab.id}')">Reset Code</button>
           </div>
           <textarea id="code-input" class="code-textarea">${step.starterCode}</textarea>
         </div>
 
         <div class="output-box">
           <div class="box-header">
-            <span>🖥️ Terminal Output & ReAct Logs</span>
+            <span>🖥️ Terminal Output & OpenAI API Logs</span>
             <span style="color: #34d399; font-size: 11px;">● Ready</span>
           </div>
           <div id="console-output" class="console-output">
-Click [ ▶ Chạy Mini Agent ] để xem vòng lặp ReAct hoạt động...
+Click [ ▶ Chạy Mini Agent với OpenAI API ] để xem kết quả chạy thật...
           </div>
         </div>
       </div>
@@ -510,8 +524,8 @@ Click [ ▶ Chạy Mini Agent ] để xem vòng lặp ReAct hoạt động...
         <button class="btn-secondary" style="width: auto;" onclick="switchModalStep(1)">
           ⬅ Step 1
         </button>
-        <button class="btn-primary" style="width: auto; display: inline-flex;" onclick="runMiniAgentCode()">
-          <span>▶ Chạy Mini Agent</span>
+        <button class="btn-primary" style="width: auto; display: inline-flex;" onclick="runMiniAgentCodeReal()">
+          <span>▶ Chạy Mini Agent với OpenAI API</span>
         </button>
       </div>
     `;
@@ -547,26 +561,30 @@ Click [ ▶ Chạy Mini Agent ] để xem vòng lặp ReAct hoạt động...
   }
 }
 
-// Run Interactive Code Execution Simulation
-window.runMiniAgentCode = function() {
+// Run Interactive Code Execution with Real OpenAI API
+window.runMiniAgentCodeReal = async function() {
+  const codeInput = document.getElementById('code-input').value;
   const outputEl = document.getElementById('console-output');
-  outputEl.innerHTML = `<span style="color: #facc15;">⏳ Đang khởi chạy ReAct Agent Engine...</span>\n`;
+  
+  outputEl.innerHTML = `<span style="color: #facc15;">⏳ Đang gửi request prompt tới OpenAI API (gpt-4o-mini)...</span>\n`;
 
-  setTimeout(() => {
-    outputEl.innerHTML = `
-<span class="console-log-thought">[THOUGHT 1]</span> Người dùng yêu cầu bài báo về 'ReAct Agent'.
-<span class="console-log-action">[ACTION 1]</span> Invoking tool: lookup_paper(query='react')
-<span class="console-log-observation">[OBSERVATION 1]</span> Query success: "ReAct: Synergizing Reasoning and Acting in LLMs (Yao et al., 2022)"
-<span class="console-log-thought">[THOUGHT 2]</span> Đã tìm thấy kết quả chính xác từ database.
-<span class="console-log-final">[FINAL ANSWER]</span> 
---------------------------------------------------
-Bài báo theo yêu cầu của bạn là:
-"ReAct: Synergizing Reasoning and Acting in LLMs"
-Tác giả: Yao et al., 2022
---------------------------------------------------
-<span style="color: #34d399;">✔ ReAct Loop completed in 0.42s (Cost-of-error: Low)</span>
-`;
-  }, 600);
+  try {
+    const res = await fetch('/api/run_agent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code_input: codeInput })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      outputEl.innerHTML = `<span style="color: #34d399;">✔ OpenAI API Response (Chạy thật 100%):</span>\n\n` + escapeHtml(data.output);
+    } else {
+      outputEl.innerHTML = `<span style="color: #ef4444;">❌ Lỗi kết nối OpenAI API:</span>\n${escapeHtml(data.error)}\n\n` +
+        `<span style="color: #facc15;">💡 Hãy kiểm tra file .env hoặc nhập OPENAI_API_KEY chuẩn trong ô cấu hình.</span>`;
+    }
+  } catch (err) {
+    outputEl.innerHTML = `<span style="color: #ef4444;">❌ Lỗi kết nối Server: ${err.message}</span>`;
+  }
 };
 
 // Handle Quiz Answer
@@ -589,110 +607,100 @@ window.handleQuizAnswer = function(selectedIdx, correctIdx, explanationEscaped) 
   }
 };
 
-// Handle Coach AI Generator
-window.handleCoachGenerate = function() {
+// Handle Coach AI Generator via REAL OpenAI API Call
+window.handleCoachGenerateReal = async function() {
   const morningSlide = document.getElementById('coach-morning-slide').value;
   const afternoonRepo = document.getElementById('coach-afternoon-repo').value;
   const rules = document.getElementById('coach-prompt-rules').value;
+  const userApiKey = document.getElementById('coach-api-key').value;
 
   const progressBox = document.getElementById('coach-generation-progress');
   progressBox.style.display = 'block';
   progressBox.innerHTML = `
     <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--navy-dark);">
-      🤖 AI Agent đang tổng hợp Mini Codelab...
+      🤖 OpenAI API Engine đang sinh Mini Codelab thật...
     </h4>
     <div class="progress-step-item active" id="pstep-1">
       <div class="progress-step-icon">1</div>
-      <span>Phân tích slide bài giảng sáng: "${morningSlide}"...</span>
+      <span>Đọc file .env & khởi tạo request OpenAI (gpt-4o-mini)...</span>
     </div>
     <div class="progress-step-item" id="pstep-2">
       <div class="progress-step-icon">2</div>
-      <span>Đọc hiểu yêu cầu repo lab chiều: "${afternoonRepo}"...</span>
+      <span>Gửi System Prompt & gọi OpenAI API Chat Completions...</span>
     </div>
     <div class="progress-step-item" id="pstep-3">
       <div class="progress-step-icon">3</div>
-      <span>Tổng hợp 3 mini steps & ràng buộc code...</span>
+      <span>Nhận JSON output thật & parse Mini Codelab...</span>
     </div>
   `;
 
   setTimeout(() => {
-    document.getElementById('pstep-1').className = 'progress-step-item done';
-    document.getElementById('pstep-2').className = 'progress-step-item active';
-  }, 1000);
+    const s1 = document.getElementById('pstep-1');
+    const s2 = document.getElementById('pstep-2');
+    if (s1 && s2) {
+      s1.className = 'progress-step-item done';
+      s2.className = 'progress-step-item active';
+    }
+  }, 800);
 
-  setTimeout(() => {
-    document.getElementById('pstep-2').className = 'progress-step-item done';
-    document.getElementById('pstep-3').className = 'progress-step-item active';
-  }, 2000);
+  try {
+    const res = await fetch('/api/generate_minicodelab', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        morning_slide: morningSlide,
+        afternoon_repo: afternoonRepo,
+        rules: rules,
+        api_key: userApiKey
+      })
+    });
 
-  setTimeout(() => {
-    document.getElementById('pstep-3').className = 'progress-step-item done';
+    const data = await res.json();
 
-    // Add generated Mini Codelab to state
-    const newLabId = `lab-gen-${Date.now()}`;
-    const newLab = {
-      id: newLabId,
-      title: `Mini Lab: AI Agent Generated cho ${afternoonRepo.split('/').pop()}`,
-      morningTopic: morningSlide.split(' - ')[1] || 'Slide Buổi Sáng',
-      morningSlideRef: morningSlide,
-      afternoonLabTarget: afternoonRepo,
-      duration: '15 phút',
-      status: 'Vừa sinh',
-      description: `Mini lab 15 phút do AI Agent vừa tự động khởi tạo từ slide sáng và repo chiều với ràng buộc: "${rules.substring(0, 60)}..."`,
-      steps: [
-        {
-          num: 1,
-          title: 'Hiểu Lý thuyết & Cầu nối',
-          content: `
-            <div class="theory-bridge-box">
-              <div class="theory-title">Trích dẫn AI Generator Bridge</div>
-              <div class="theory-content">
-                Bài mini lab này được AI Agent sinh tự động nhằm nối liền lý thuyết <strong>${morningSlide}</strong> với dự án 4 tiếng buổi chiều tại <strong>${afternoonRepo}</strong>.
-              </div>
-            </div>
-          `
-        },
-        {
-          num: 2,
-          title: 'Thử nghiệm Code Generated',
-          starterCode: `# AI Agent Generated Code Mini Lab
-import openai
+    const s2 = document.getElementById('pstep-2');
+    const s3 = document.getElementById('pstep-3');
+    if (s2 && s3) {
+      s2.className = 'progress-step-item done';
+      s3.className = 'progress-step-item done';
+    }
 
-def generated_agent_step():
-    print("[AI GENERATED MINI STEP] Safe call setup completed.")
-    return "Mini step executed smoothly!"
+    if (data.success && data.lab) {
+      const generatedLab = data.lab;
+      generatedLab.id = `lab-real-${Date.now()}`;
+      state.codelabs.unshift(generatedLab);
 
-print(generated_agent_step())
-`
-        },
-        {
-          num: 3,
-          title: 'Kiểm tra & Củng cố (Mini Quiz)',
-          quiz: {
-            question: 'Mục đích của việc học Mini Codelab 15 phút buổi sáng là gì?',
-            options: [
-              'Để thay thế hoàn toàn bài lab 4 tiếng buổi chiều.',
-              'Để thông tư tưởng lý thuyết và hiểu bản chất code trước khi vào bài lab 4 tiếng.',
-              'Để nộp bài chấm điểm trực tiếp.'
-            ],
-            correct: 1,
-            explanation: 'Đúng rồi! Mini lab giúp học viên tự tin thông qua bài lab 4 tiếng buổi chiều mà không bị phụ thuộc lạm dụng AI.'
-          }
-        }
-      ]
-    };
+      progressBox.innerHTML += `
+        <div style="margin-top: 16px; padding: 16px; background: #dcfce7; border-radius: 8px; color: #166534; font-size: 13px;">
+          <strong>🎉 ĐÃ SINH THÀNH CÔNG MINI CODELAB BẰNG OPENAI API THẬT!</strong><br>
+          Mini Codelab do <code>gpt-4o-mini</code> trực tiếp sinh ra đã được phát hành lên Dashboard Học viên.
+          <br><br>
+          <button class="btn-primary" style="width: auto;" onclick="switchRole('student')">
+            👉 Chuyển sang Giao diện Học viên để xem kết quả sinh thật
+          </button>
+        </div>
+      `;
+    } else {
+      progressBox.innerHTML += `
+        <div style="margin-top: 16px; padding: 16px; background: #fee2e2; border-radius: 8px; color: #991b1b; font-size: 13px;">
+          <strong>❌ THÔNG BÁO TỪ SERVES OPENAI API:</strong><br>
+          ${escapeHtml(data.error || 'Lỗi không xác định')}<br><br>
+          💡 <strong>Hướng dẫn khắc phục:</strong><br>
+          1. Mở file <code>.env</code> ở thư mục gốc project và thay bằng key thật: <code>OPENAI_API_KEY=sk-proj-...</code><br>
+          2. Hoặc dán trực tiếp <code>sk-proj-...</code> vào ô <strong>Cấu hình OpenAI API Key</strong> phía trên rồi bấm thử lại!
+        </div>
+      `;
+    }
 
-    state.codelabs.unshift(newLab);
-
+  } catch (err) {
     progressBox.innerHTML += `
-      <div style="margin-top: 16px; padding: 14px; background: #dcfce7; border-radius: 8px; color: #166534; font-size: 13px;">
-        <strong>✔ ĐÃ TẠO THÀNH CÔNG MINI CODELAB!</strong><br>
-        Mini Codelab đã được phát hành lên không gian học tập của Học viên.
-        <br><br>
-        <button class="btn-primary" style="width: auto;" onclick="switchRole('student')">
-          👉 Chuyển sang Giao diện Học viên để xem ngay
-        </button>
+      <div style="margin-top: 16px; padding: 16px; background: #fee2e2; border-radius: 8px; color: #991b1b; font-size: 13px;">
+        <strong>❌ LỖI KẾT NỐI SERVER:</strong> ${escapeHtml(err.message)}
       </div>
     `;
-  }, 3200);
+  }
 };
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
