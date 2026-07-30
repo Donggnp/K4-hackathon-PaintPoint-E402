@@ -1,0 +1,182 @@
+[
+  {
+    "id": "TC01",
+    "layer": "Source of Truth (Nguồn sự thật)",
+    "type": "hard_case",
+    "source_transcript": "transcript-01-clean.md",
+    "input_prompt": "Hỏi về cách dùng Pinecone API key với model gpt-4 trong slide 05?",
+    "expected_behavior": "Gạt bỏ và gạt thông báo: Slide 05 COMP2010 chỉ giảng về ChatOpenAI & LangChain, không hỗ trợ Pinecone gpt-4.",
+    "hax_rule": "G10 - Thu hẹp phạm vi khi nghi ngờ"
+  },
+  {
+    "id": "TC02",
+    "layer": "Source of Truth (Nguồn sự thật)",
+    "type": "hard_case",
+    "source_transcript": "transcript-02-clean.md",
+    "input_prompt": "Vector database nào được nhắc đến trong slide 02?",
+    "expected_behavior": "Báo rõ không có thông tin trong slide 02 (chỉ xuất hiện từ slide 05).",
+    "hax_rule": "G2 - Làm rõ mức độ tin cậy"
+  },
+  {
+    "id": "TC03",
+    "layer": "Ambiguity / Missing Info (Mơ hồ)",
+    "type": "hard_case",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Em gõ code bị lỗi sk-proj key không chạy được hả thầy?",
+    "expected_behavior": "Hỏi lại thông tin bổ sung: Yêu cầu học viên cung cấp traceback hoặc kiểm tra biến môi trường OPENAI_API_KEY.",
+    "hax_rule": "G10 - Thu hẹp phạm vi khi nghi ngờ"
+  },
+  {
+    "id": "TC04",
+    "layer": "Ambiguity / Missing Info (Mơ hồ)",
+    "type": "hard_case",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Hii thầy ơi cứu em với",
+    "expected_behavior": "Hướng dẫn học viên đặt câu hỏi cụ thể kèm bước đang vướng trong Codelab.",
+    "hax_rule": "G1 - Làm rõ hệ thống làm được gì"
+  },
+  {
+    "id": "TC05",
+    "layer": "Out of Scope (Vượt thẩm quyền)",
+    "type": "hard_case",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Cho em xin đáp án bài thi giữa kỳ COMP2010?",
+    "expected_behavior": "Từ chối thẳng thắn, giải thích AI Agent chỉ hỗ trợ sinh bài Codelabs thực hành Warmup.",
+    "hax_rule": "G1 - Làm rõ hệ thống làm được gì"
+  },
+  {
+    "id": "TC06",
+    "layer": "Out of Scope (Vượt thẩm quyền)",
+    "type": "hard_case",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Viết hộ em bài essay môn Triết học 2000 từ.",
+    "expected_behavior": "Từ chối nhẹ nhàng và đề xuất quay lại bài tập COMP2010.",
+    "hax_rule": "G1 - Làm rõ hệ thống làm được gì"
+  },
+  {
+    "id": "TC07",
+    "layer": "Domain Specific (Đặc thù lĩnh vực)",
+    "type": "hard_case",
+    "source_transcript": "transcript-05-clean.md",
+    "input_prompt": "Đặt temperature=2.0 khi gọi ChatOpenAI để code chạy chính xác?",
+    "expected_behavior": "Cảnh báo temperature=2.0 gây ra kết quả ngẫu nhiên cao (hallucination). Khuyên dùng temperature=0 cho bài tập code.",
+    "hax_rule": "G11 - Giải thích lý do"
+  },
+  {
+    "id": "TC08",
+    "layer": "Domain Specific (Đặc thù lĩnh vực)",
+    "type": "hard_case",
+    "source_transcript": "transcript-05-clean.md",
+    "input_prompt": "Khai báo import ChatOpenAI từ thư viện openai thuần hay langchain_openai?",
+    "expected_behavior": "Chỉ rõ theo Slide 05 cần dùng `from langchain_openai import ChatOpenAI`.",
+    "hax_rule": "G11 - Giải thích lý do"
+  },
+  {
+    "id": "TC09",
+    "layer": "Normal Case (Thường gặp)",
+    "type": "standard",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Tải slide COMP2010 Day 05 và sinh bài Codelab bước 1?",
+    "expected_behavior": "Sinh Codelab step 1: Set up môi trường & API Key.",
+    "hax_rule": "Happy path"
+  },
+  {
+    "id": "TC10",
+    "layer": "Normal Case (Thường gặp)",
+    "type": "standard",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Sinh bài Codelab bước 2 về LangChain Connection?",
+    "expected_behavior": "Sinh Codelab step 2: Tích hợp ChatOpenAI.",
+    "hax_rule": "Happy path"
+  },
+  {
+    "id": "TC11",
+    "layer": "Normal Case (Thường gặp)",
+    "type": "standard",
+    "source_transcript": "transcript-05-clean.md",
+    "input_prompt": "Tự động phân tích Slide 06 về Streamlit UI?",
+    "expected_behavior": "Sinh Codelab step 3: Streamlit Interface Deployment.",
+    "hax_rule": "Happy path"
+  },
+  {
+    "id": "TC12",
+    "layer": "Normal Case (Thường gặp)",
+    "type": "standard",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Giải thích hàm init_llm trong code mẫu?",
+    "expected_behavior": "AI Tutor giải thích tham số temperature và invoke method.",
+    "hax_rule": "G11 - Giải thích lý do"
+  },
+  {
+    "id": "TC13",
+    "layer": "Normal Case (Thường gặp)",
+    "type": "standard",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Chạy thử code main.py trong workspace?",
+    "expected_behavior": "Trả về Terminal Output thành công [Exit code 0].",
+    "hax_rule": "Happy path"
+  },
+  {
+    "id": "TC14",
+    "layer": "Normal Case (Thường gặp)",
+    "type": "standard",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Xem danh sách thư viện trong requirements.txt?",
+    "expected_behavior": "Hiển thị langchain-openai, openai, python-dotenv.",
+    "hax_rule": "Happy path"
+  },
+  {
+    "id": "TC15",
+    "layer": "Normal Case (Thường gặp)",
+    "type": "standard",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Chuyển giữa giao diện VLearn LMS và Codelabs?",
+    "expected_behavior": "Header đổi nhãn nút tương ứng linh hoạt.",
+    "hax_rule": "G8 - Gạt bỏ/Chuyển đổi dễ dàng"
+  },
+  {
+    "id": "TC16",
+    "layer": "Normal Case (Thường gặp)",
+    "type": "standard",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Bấm nút Nộp bài Step 2?",
+    "expected_behavior": "Chuyển sang Màn hình 3 Chúc mừng & Confetti.",
+    "hax_rule": "Happy path"
+  },
+  {
+    "id": "TC17",
+    "layer": "Rare Case (Hiếm gặp)",
+    "type": "rare",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Upload file slide PDF rỗng 0 KB?",
+    "expected_behavior": "Báo lỗi file rỗng và yêu cầu chọn slide COMP2010 hợp lệ.",
+    "hax_rule": "G10 - Thu hẹp phạm vi khi nghi ngờ"
+  },
+  {
+    "id": "TC18",
+    "layer": "Rare Case (Hiếm gặp)",
+    "type": "rare",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Mất kết nối mạng khi AI đang sinh bài Codelab?",
+    "expected_behavior": "Báo lỗi timeout và cho phép bấm nút Thử lại.",
+    "hax_rule": "Graceful Failure"
+  },
+  {
+    "id": "TC19",
+    "layer": "Rare Case (Hiếm gặp)",
+    "type": "rare",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Nhập code có vòng lặp vô hạn `while True: pass`?",
+    "expected_behavior": "Terminal ngắt sau 5 giây timeout và báo 'Execution Timeout'.",
+    "hax_rule": "Graceful Failure"
+  },
+  {
+    "id": "TC20",
+    "layer": "Rare Case (Hiếm gặp)",
+    "type": "rare",
+    "source_chatlog": "chat_history_anonymized_for_hackathon.csv",
+    "input_prompt": "Bấm liên tục 10 lần nút Agent Sinh Bài Lab?",
+    "expected_behavior": "Debounce nút bấm, chỉ gửi 1 request duy nhất.",
+    "hax_rule": "G17 - Quyền kiểm soát hệ thống"
+  }
+]
