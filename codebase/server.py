@@ -35,6 +35,9 @@ import urllib.error
 import urllib.request
 import zipfile
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 from dotenv import load_dotenv
 
 try:
@@ -439,9 +442,20 @@ def call_openai_chat(messages, model=None, temperature=0.4):
     """
     key = os.getenv('OPENAI_API_KEY')
     selected_model = model or os.getenv('OPENAI_MODEL', DEFAULT_MODEL)
+    base_url = os.getenv('OPENAI_BASE_URL', '').rstrip('/')
 
     if not key or key == 'sk-proj-your-openai-api-key-here':
         raise ValueError("Chưa cấu hình OPENAI_API_KEY hợp lệ trong file .env!")
+
+    if base_url:
+        if base_url.endswith('/chat/completions'):
+            endpoint = base_url
+        elif base_url.endswith('/v1'):
+            endpoint = f"{base_url}/chat/completions"
+        else:
+            endpoint = f"{base_url}/v1/chat/completions"
+    else:
+        endpoint = "https://api.openai.com/v1/chat/completions"
 
     payload = {
         "model": selected_model,
@@ -453,7 +467,7 @@ def call_openai_chat(messages, model=None, temperature=0.4):
 
     def _do_request(body_dict):
         req = urllib.request.Request(
-            "https://api.openai.com/v1/chat/completions",
+            endpoint,
             data=json.dumps(body_dict).encode('utf-8'),
             headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
             method='POST',

@@ -246,9 +246,17 @@ def run_evaluation():
 
     for tc in golden_set:
         tc_id = tc["id"]
-        layer = tc["layer"]
-        dim   = tc.get("dimension", "")
-        prompt = tc["input_prompt"]
+        layer = tc.get("layer", "")
+        dim   = tc.get("dimension", tc.get("type", ""))
+        
+        prompt = tc.get("input_prompt")
+        if not prompt:
+            inp = tc.get("input")
+            user_p = tc.get("user_prompt", "")
+            if inp:
+                prompt = f"Input Context: {json.dumps(inp, ensure_ascii=False)}\nUser Prompt: {user_p}"
+            else:
+                prompt = user_p
 
         success, response = call_llm(prompt, config)
         time.sleep(0.6)
@@ -260,7 +268,7 @@ def run_evaluation():
             status  = grade(tc_id, response)
             snippet = response[:110].replace('\n', ' ')
 
-        is_hard = tc_id in HARD_CASES
+        is_hard = tc_id in HARD_CASES or tc.get("type") == "hard_case"
         if is_hard:
             hard_total += 1
             if status == "PASS":
