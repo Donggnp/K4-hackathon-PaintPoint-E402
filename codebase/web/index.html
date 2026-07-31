@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLearn — Mini Codelab Generator | VinUni AI Thực Chiến</title>
+  <meta name="description" content="Nền tảng VLearn sinh Mini Codelab tự động từ slide bài giảng buổi sáng và mô tả lab buổi chiều, có kiểm chất lượng bằng máy và chạy test thật.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div id="app"></div>
+
+  <!-- Không dùng bundler: nạp theo đúng thứ tự phụ thuộc.
+       main phải đứng cuối vì nó gọi renderApp khi mọi thứ đã định nghĩa xong. -->
+  <script src="js/core/state.js"></script>
+  <script src="js/core/utils.js"></script>
+  <script src="js/core/quality.js"></script>
+  <script src="js/core/timer.js"></script>
+  <script src="js/core/transfer.js"></script>
+
+  <script src="js/views/shell.js"></script>
+  <script src="js/views/student.js"></script>
+  <script src="js/views/coach.js"></script>
+  <script src="js/views/explorer.js"></script>
+  <script src="js/views/workspace.js"></script>
+
+  <script src="js/actions.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

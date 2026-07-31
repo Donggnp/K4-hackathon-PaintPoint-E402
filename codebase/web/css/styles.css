@@ -1655,3 +1655,143 @@ body.dark-mode .ratio-pill.bad  { background: #422006; color: #fde68a; border-co
   font-family: 'JetBrains Mono', monospace;
   opacity: .85;
 }
+
+/* =========================================================================
+   Chọn nguồn mô tả lab buổi chiều: README.md (nhẹ) hay cả repo .zip
+   ========================================================================= */
+.source-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 6px;
+}
+.source-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.source-option:hover { border-color: var(--primary-red); }
+.source-option.active {
+  border-color: var(--primary-red);
+  background: var(--primary-red-light);
+}
+body.dark-mode .source-option.active { background: rgba(200, 16, 46, .12); }
+.source-option input { margin-top: 3px; flex-shrink: 0; }
+.source-option strong { display: block; font-size: 13px; color: var(--text-main); }
+.source-option span { display: block; font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+/* =========================================================================
+   Báo cáo chạy test: huy hiệu sandbox, danh sách test, log terminal
+   ========================================================================= */
+.sandbox-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.sandbox-badge.ok   { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+.sandbox-badge.warn { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+.sandbox-badge.bad  { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+
+.sandbox-warn {
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(245, 158, 11, .15);
+}
+
+.test-case-list {
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 10px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--card-bg);
+}
+.test-case {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  border-bottom: 1px solid var(--border-color);
+}
+.test-case:last-child { border-bottom: none; }
+.test-case-mark { font-weight: 800; width: 12px; flex-shrink: 0; }
+.test-case.pass .test-case-mark { color: var(--accent-green); }
+.test-case.fail .test-case-mark { color: var(--primary-red); }
+.test-case.fail { background: rgba(200, 16, 46, .06); }
+.test-case-file { color: var(--text-muted); flex-shrink: 0; }
+.test-case-name { color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.test-log-wrap { margin-top: 10px; }
+.test-log-cmd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 8px 12px;
+  background: #161b22;
+  color: #7ee787;
+  border-radius: 6px 6px 0 0;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.test-log-wrap .test-output { margin-top: 0; border-radius: 0 0 6px 6px; }
+
+/* Tiến độ khi sinh bài — thay cho vòng xoay im lặng */
+.gen-elapsed { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); font-weight: 400; }
+.gen-phase { font-size: 13px; color: var(--text-main); margin: 6px 0; }
+.gen-rounds {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--primary-red-light); color: var(--primary-red);
+}
+.gen-detail { margin: 8px 0 0; padding-left: 20px; font-size: 11.5px; color: var(--text-muted); }
+.gen-detail li { margin-bottom: 3px; }
+.gen-note { margin-top: 10px; font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+
+.busy-progress { margin-top: 12px; }
+.busy-phase { font-size: 12.5px; color: var(--text-main); }
+.busy-elapsed { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+
+/* Khối "đang sinh" — có vòng xoay để người dùng biết hệ thống vẫn đang chạy */
+.gen-live { display: flex; gap: 16px; align-items: flex-start; margin-top: 16px; }
+.gen-live-body { flex: 1; min-width: 0; }
+.gen-spinner {
+  width: 30px; height: 30px; flex-shrink: 0; margin-top: 2px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-red);
+  border-radius: 50%;
+  animation: busy-spin .8s linear infinite;
+}
+.gen-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 6px; }
+
+/* Vòng xoay trong lớp phủ toàn màn (sinh tutorial) */
+.busy-box { min-width: 320px; }
+
+/* Lịch sử lượt chạy */
+.run-stage {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px; margin-right: 6px;
+  background: var(--bg-page); color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+/* Nút hành động có rủi ro — vàng, không phải đỏ (không cấm, chỉ cảnh báo) */
+.btn-warning {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; font-size: 13px; font-weight: 700;
+  background: #f59e0b; color: #fff;
+  border: none; border-radius: var(--border-radius-sm);
+  cursor: pointer; transition: background .15s ease;
+}
+.btn-warning:hover { background: #d97706; }
