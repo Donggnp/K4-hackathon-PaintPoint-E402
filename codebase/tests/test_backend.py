@@ -477,38 +477,54 @@ class _FakeHandler:
 
 
 def _invoke_tutorial(payload, monkeypatch, fake_steps=None):
+    """Gọi handler thật, trả về (status, body, job_result).
+
+    Endpoint trả 202 + jobId rồi làm việc ở luồng nền, nên `lab` KHÔNG nằm trong
+    body HTTP. Ta chạy work() đồng bộ và bắt lấy giá trị nó trả về — đó mới là
+    chỗ chứa kết quả thật, và cũng là chỗ lỗi trùng tên biến từng nổ ra.
+    """
     import vlearn.http_api as api
 
-    monkeypatch.setattr(api, 'build_tutorial',
-                        lambda lab, model, report=None: (fake_steps or [{'num': 0, 'title': 'Bước 0 — x', 'blocks': []}], [{'round': 1, 'violations': [], 'passed': True, 'usage': {}}]))
+    captured = {}
+
+    monkeypatch.setattr(api, 'build_tutorial', lambda lab, model, report=None: (
+        fake_steps or [{'num': 0, 'title': 'Bước 0 — x', 'blocks': []}],
+        [{'round': 1, 'violations': [], 'passed': True, 'usage': {}}],
+    ))
     monkeypatch.setattr(api, 'save_run', lambda *a, **k: {'runId': 'test-run'})
-    # chạy thẳng ở luồng hiện tại để test bắt được exception
-    monkeypatch.setattr(api, 'run_in_background',
-                        lambda job_id, fn: fn(lambda *a, **k: None))
+
+    def run_now(job_id, fn):
+        # Chạy thẳng ở luồng hiện tại để test bắt được cả exception lẫn kết quả.
+        captured['result'] = fn(lambda *a, **k: None)
+
+    monkeypatch.setattr(api, 'run_in_background', run_now)
 
     handler = _FakeHandler()
     api.VLearnRequestHandler.handle_generate_tutorial(handler, payload)
-    return handler.responses[-1]
+    status, body = handler.responses[-1]
+    return status, body, captured.get('result')
 
 
 def test_tutorial_endpoint_asks_confirmation_on_red_tests(golden, monkeypatch):
     golden['testReport'] = {'ran': True, 'returncode': 1, 'passed': 27, 'total': 28}
-    status, body = _invoke_tutorial({'lab': golden}, monkeypatch)
+    status, body, result = _invoke_tutorial({'lab': golden}, monkeypatch)
 
     assert status == 409
     assert body['needsConfirmation'] is True
     assert body['testSummary']['passed'] == 27
+    assert result is None, "chưa xác nhận thì tuyệt đối không được chạy sinh bài"
 
 
 def test_tutorial_endpoint_runs_when_coach_confirms(golden, monkeypatch):
     """Đây là ca đã từng nổ AttributeError vì trùng tên biến `report`."""
     golden['testReport'] = {'ran': True, 'returncode': 1, 'passed': 27, 'total': 28}
-    status, body = _invoke_tutorial(
+    status, body, result = _invoke_tutorial(
         {'lab': golden, 'allowFailingTests': True}, monkeypatch)
 
-    assert status == 200, body
-    assert body['success'] is True
-    assert body['lab']['generatedFromFailingTests'] == {
+    assert status == 202, body
+    assert body['jobId']
+    assert result is not None, "work() phải chạy được, không nổ giữa chừng"
+    assert result['lab']['generatedFromFailingTests'] == {
         'passed': 27, 'total': 28, 'ran': True}
 
 
@@ -516,13 +532,14 @@ def test_tutorial_endpoint_clears_flag_when_tests_green(golden, monkeypatch):
     golden['testReport'] = {'ran': True, 'returncode': 0, 'passed': 28, 'total': 28}
     golden['generatedFromFailingTests'] = {'passed': 1, 'total': 2, 'ran': True}
 
-    status, body = _invoke_tutorial({'lab': golden}, monkeypatch)
+    status, body, result = _invoke_tutorial({'lab': golden}, monkeypatch)
 
-    assert status == 200
-    assert 'generatedFromFailingTests' not in body['lab']
+    assert status == 202
+    assert 'generatedFromFailingTests' not in result['lab']
 
 
 def test_tutorial_endpoint_rejects_empty_repo(monkeypatch):
-    status, body = _invoke_tutorial({'lab': {'repo': {'files': []}}}, monkeypatch)
+    status, body, result = _invoke_tutorial({'lab': {'repo': {'files': []}}}, monkeypatch)
     assert status == 400
     assert 'Chưa có repo' in body['error']
+    assert result is None
