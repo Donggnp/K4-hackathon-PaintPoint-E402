@@ -79,7 +79,7 @@ mà học viên không hiểu vì sao — lỗi tệ nhất một app giáo dụ
 hiện tỉ lệ `code / giải thích` ngay trên đầu mỗi bước và cảnh báo bước nào còn mỏng.
 
 Hệ thống cũng tự cảnh báo khi: tổng thời lượng ra ngoài khung 30–45 phút, số phase ngoài 5–6,
-số file ngoài 10–22, hoặc số dòng logic ngoài 400–600.
+số file ngoài 10–22, hoặc số dòng logic ngoài 100–200.
 
 ---
 
@@ -109,8 +109,8 @@ OPENAI_MODEL=gpt-5-mini            # mặc định cho cả hai
 # OPENAI_MODEL_TUTORIAL=gpt-5-mini # GĐ2 giữ model rẻ
 ```
 
-**Đừng dùng model mini yếu cho GĐ1**: nó phải sinh 400–600 dòng logic khớp chính xác với ~330 dòng
-test trong một lượt. Fail thì retry 3 vòng → tốn gấp 3 lần token mà vẫn có thể hỏng.
+GĐ1 phải sinh 100–200 dòng logic khớp chính xác với bộ test trong một lượt.
+Nếu model thường xuyên phải retry 3 vòng, hãy cân nhắc dùng model mạnh hơn riêng cho GĐ1.
 
 ### Quyết định bằng số liệu, không đoán
 
@@ -130,7 +130,7 @@ Các ràng buộc của lớp không chỉ nằm trong prompt — server **đo b
 
 | Giai đoạn | Đo những gì |
 |---|---|
-| 1 — repo | số file 10–22 · 400–600 dòng logic · cú pháp Python hợp lệ · có `tests/`, `src/`, `pytest.ini`, `requirements.txt` · có package con lồng nhau · không còn TODO/FIXME · **quét bảo mật** · **CHẠY THẬT `pytest`, phải pass 100%** |
+| 1 — repo | số file 10–22 · 100–200 dòng logic · cú pháp Python hợp lệ · có `tests/`, `src/`, `pytest.ini`, `requirements.txt` · có package con lồng nhau · không còn TODO/FIXME · **quét bảo mật** · **CHẠY THẬT `pytest`, phải pass 100%** |
 | 2 — tutorial | có Bước 0 và Bước 0 không dạy file logic · 5–6 phase · **trùng khít repo từng ký tự** · **tỉ lệ giải thích ≥ 1/4** · có quiz |
 
 Vi phạm được **gửi ngược lại cho lõi kèm lệnh sửa**. Nếu sau 3 vòng vẫn chưa đạt, hệ thống
@@ -159,7 +159,7 @@ Coach có nút **🧪 Chạy lại test** để kiểm lại sau khi tự sửa 
 
 ## Dạy lõi làm tốt — không chỉ ra lệnh cho nó
 
-Ràng buộc suông không đủ để một model viết đúng 450 dòng code khớp 330 dòng test. System
+Ràng buộc suông không đủ để một model viết đúng 100–200 dòng code khớp bộ test. System
 prompt vì vậy **dạy phương pháp và cho xem mẫu**:
 
 - **Quy trình bắt buộc**: chọn khái niệm → thiết kế 5 tầng → **viết test trước** (test là đặc tả)

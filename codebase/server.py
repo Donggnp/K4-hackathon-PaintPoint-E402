@@ -54,7 +54,7 @@ DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 # Lõi sinh nội dung. Đây là bài sinh code dài, phải đúng liên file — không phải
 # việc dành cho model nhỏ. Đổi qua .env nếu cần, nhưng đừng hạ xuống model mini:
-# giai đoạn 1 phải sinh 400-600 dòng logic khớp chính xác với ~330 dòng test.
+# giai đoạn 1 phải sinh 100-200 dòng logic khớp chính xác với bộ test.
 DEFAULT_MODEL = 'gpt-5-mini'
 
 # Hai giai đoạn có yêu cầu RẤT khác nhau, nên cho phép chọn model riêng:
@@ -98,8 +98,8 @@ MIN_README_CHARS_FOR_VALID_INPUT = 1
 # Ràng buộc quy mô bài học (§3.3, §5.2)
 MIN_REPO_FILES = 10
 MAX_REPO_FILES = 22
-MIN_LOGIC_LINES = 400
-MAX_LOGIC_LINES = 600
+MIN_LOGIC_LINES = 50
+MAX_LOGIC_LINES = 200
 MIN_PHASES = 5
 MAX_PHASES = 6
 
@@ -820,7 +820,7 @@ def generate_with_self_correction(system_prompt, user_message, auditor, build_la
 
     Đây là chỗ các ràng buộc trong description_tutorial.md thật sự có hiệu lực:
     prompt chỉ là lời dặn, còn vòng lặp này mới là thứ ép model tuân thủ. Không
-    có nó thì mọi con số (400-600 dòng, tỉ lệ giải thích 1/4, trùng khít repo)
+    có nó thì mọi con số (100-200 dòng, tỉ lệ giải thích 1/4, trùng khít repo)
     chỉ là mong muốn.
 
     Trả về (lab, audit_log). audit_log ghi lại từng vòng để Coach thấy lõi đã
