@@ -23,6 +23,7 @@ Khi khởi động, server tự báo trạng thái:
 ```
 Nếu thấy `❌ pypdf: KHÔNG tìm thấy`, hãy cài bằng **đúng interpreter** mà server in ra ở dòng
 `🐍 Python:` — máy có nhiều bản Python là nguyên nhân thường gặp nhất của lỗi này.
+Dependency `cryptography` cũng được cài kèm để đọc các PDF dùng mã hoá AES.
 
 ---
 
@@ -31,8 +32,8 @@ Nếu thấy `❌ pypdf: KHÔNG tìm thấy`, hãy cài bằng **đúng interpre
 **Giai đoạn 1 — sinh repo**
 1. Vào **👨‍🏫 Lab Coach Studio**. Khung *Tất cả Mini-project* liệt kê mọi bài kèm trạng thái;
    mỗi dòng có nút **🗑️ Xoá**.
-2. Ở khung *Tạo Mini-project mới*: chọn **Slide PDF** buổi sáng (PDF có text thật, không phải ảnh scan)
-   và **.zip** repo lab buổi chiều (zip nguyên thư mục, hệ thống tự lọc `node_modules`/`venv`/`.git`).
+2. Ở khung *Tạo Mini-project mới*: chọn **Slide PDF** (PDF có text thật, không phải ảnh scan)
+   và **README.md** của bài lab. Không cần nhập URL GitHub, nén hoặc tải lên toàn bộ repo.
 3. Bấm **✨ Bước 1 — Sinh repo mini-project** → AI trả về **bản tóm tắt bài lab** + **repo code hoàn chỉnh**.
 
 **Soát và sửa repo**
@@ -87,7 +88,7 @@ số file ngoài 10–22, hoặc số dòng logic ngoài 400–600.
 | Endpoint | Việc |
 |---|---|
 | `GET /api/status` | Trạng thái API key, model, pypdf |
-| `POST /api/generate_repo` | Giai đoạn 1: PDF + zip → tóm tắt + repo |
+| `POST /api/generate_repo` | Giai đoạn 1: PDF + README.md → tóm tắt + repo |
 | `POST /api/generate_tutorial` | Giai đoạn 2: repo đã duyệt → tutorial |
 | `POST /api/pack_repo` | `[{path, content}]` → `.zip` (cả repo, hoặc riêng starter kit qua `only_paths`) |
 | `POST /api/unpack_repo` | `.zip` → `[{path, content}]` |
@@ -182,7 +183,7 @@ vì lõi vẫn chạy nhưng học sai mẫu.
   không qua SDK riêng.
 - Không có database — mọi mini-project lưu trong state client-side của phiên hiện tại, mất khi reload trang.
   Muốn giữ lại repo thì dùng nút **⬇️ Tải repo (.zip)**.
-- Nếu PDF là ảnh scan (không có text layer) hoặc ZIP rỗng, hệ thống dừng và báo lỗi rõ ràng thay vì
+- Nếu PDF là ảnh scan (không có text layer) hoặc README rỗng, hệ thống dừng và báo lỗi rõ ràng thay vì
   tự đoán (§3.8 Clarification protocol trong `description_tutorial.md`).
 - Hai bài mẫu đi kèm (`mini-react-agent` 45 test, `mini-guardrail-pipeline` 36 test) đã được dựng
   và chạy thật: tải `.zip` về chạy `pytest` là pass 100%.

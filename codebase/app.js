@@ -1,7 +1,7 @@
 // VLearn Mini Codelab Generator — logic ứng dụng (vanilla JS, không framework)
 //
 // Luồng nghiệp vụ (đọc kỹ trước khi sửa file này):
-//   1. Lab Coach nạp Slide PDF + repo lab chiều (.zip)
+//   1. Lab Coach nạp Slide PDF + README.md của bài lab
 //   2. AI sinh: tóm tắt bài lab + REPO CODE hoàn chỉnh  -> status 'repo_review'
 //   3. Coach mở repo trong File Explorer, sửa trực tiếp, HOẶC tải .zip về sửa
 //      bằng IDE của mình rồi upload lại
@@ -1431,7 +1431,7 @@ function renderCoachStudio() {
         <div class="breadcrumb-tag">LAB COACH STUDIO</div>
         <h1 class="page-title">Quản lý & tạo Mini Codelab</h1>
         <p class="page-subtitle">
-          Nạp slide sáng + repo lab chiều. AI sinh repo trước — bạn duyệt repo rồi mới tới tutorial.
+          Chỉ cần nạp Slide PDF và README.md của bài lab. AI sinh repo trước — bạn duyệt repo rồi mới tới tutorial.
         </p>
       </div>
     </div>
@@ -1501,15 +1501,15 @@ function renderGenerateForm() {
       <h3 class="coach-section-title" style="margin-top:0;">Tạo Mini-project mới</h3>
       <form onsubmit="event.preventDefault(); handleGenerateRepo();">
         <div class="form-group">
-          <label class="form-label">1. Slide lý thuyết buổi sáng (.pdf) — bắt buộc</label>
-          <input type="file" id="coach-slide-pdf" class="form-control" accept="application/pdf">
+          <label class="form-label">1. Slide lý thuyết (.pdf) — bắt buộc</label>
+          <input type="file" id="coach-slide-pdf" class="form-control" accept=".pdf,application/pdf" required>
           <small class="form-hint">Hệ thống đọc text theo từng trang để trích dẫn đúng số trang.</small>
         </div>
 
         <div class="form-group">
-          <label class="form-label">2. Repo lab buổi chiều, nén .zip — bắt buộc</label>
-          <input type="file" id="coach-repo-zip" class="form-control" accept=".zip">
-          <small class="form-hint">Chỉ đọc file tree + file cốt lõi (README, entry point, file dependency).</small>
+          <label class="form-label">2. README của bài lab (.md) — bắt buộc</label>
+          <input type="file" id="coach-readme" class="form-control" accept=".md,text/markdown,text/plain" required>
+          <small class="form-hint">Chỉ tải README.md; không cần nhập URL GitHub, nén hoặc tải lên toàn bộ repo.</small>
         </div>
 
         <div class="form-group">
@@ -2168,29 +2168,34 @@ function recomputeDuration(p) {
 
 window.handleGenerateRepo = async function () {
   const pdfInput = document.getElementById('coach-slide-pdf');
-  const zipInput = document.getElementById('coach-repo-zip');
+  const readmeInput = document.getElementById('coach-readme');
   const rules = document.getElementById('coach-prompt-rules').value;
   const box = document.getElementById('coach-generation-progress');
   const btn = document.getElementById('btn-generate-repo');
 
   box.style.display = 'block';
 
-  if (!pdfInput.files[0] || !zipInput.files[0]) {
-    box.innerHTML = `<div class="gen-error"><strong>❌ Thiếu file:</strong> cần cả Slide PDF và repo .zip.</div>`;
+  if (!pdfInput.files[0] || !readmeInput.files[0]) {
+    box.innerHTML = `<div class="gen-error"><strong>❌ Thiếu file:</strong> cần cả Slide PDF và README.md.</div>`;
+    return;
+  }
+
+  if (!readmeInput.files[0].name.toLowerCase().endsWith('.md')) {
+    box.innerHTML = `<div class="gen-error"><strong>❌ Sai định dạng:</strong> file thứ hai phải là README.md.</div>`;
     return;
   }
 
   btn.disabled = true;
   box.innerHTML = `
     <h4 class="gen-title">🤖 Đang sinh repo mini-project...</h4>
-    <div class="progress-step-item active"><div class="progress-step-icon">1</div><span>Đọc Slide PDF theo trang + file tree repo lab chiều</span></div>
+    <div class="progress-step-item active"><div class="progress-step-icon">1</div><span>Đọc Slide PDF theo trang + toàn bộ nội dung README.md</span></div>
     <div class="progress-step-item"><div class="progress-step-icon">2</div><span>Gọi OpenAI sinh repo hoàn chỉnh (có thể mất 1-2 phút)</span></div>
     <div class="progress-step-item"><div class="progress-step-icon">3</div><span>Tự kiểm quy mô, tách bộ khung khởi động</span></div>`;
 
   try {
-    const [pdfBase64, zipBase64] = await Promise.all([
+    const [pdfBase64, readmeBase64] = await Promise.all([
       fileToBase64(pdfInput.files[0]),
-      fileToBase64(zipInput.files[0]),
+      fileToBase64(readmeInput.files[0]),
     ]);
 
     const res = await fetch('/api/generate_repo', {
@@ -2198,7 +2203,7 @@ window.handleGenerateRepo = async function () {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         pdf_base64: pdfBase64, pdf_filename: pdfInput.files[0].name,
-        zip_base64: zipBase64, zip_filename: zipInput.files[0].name,
+        readme_base64: readmeBase64, readme_filename: readmeInput.files[0].name,
         rules,
       }),
     });
@@ -2231,7 +2236,7 @@ window.handleGenerateRepo = async function () {
       (rounds > 1 ? `Lõi AI phải tự sửa ${rounds - 1} vòng mới đạt ràng buộc.\n` : `Đạt ràng buộc ngay vòng đầu.\n`) +
       `\n` +
       `Slide: dùng ${meta.slide_pages_used}/${meta.slide_pages_total} trang có text.\n` +
-      `Repo lab chiều: đọc ${meta.repo_files_found} file.\n\n` +
+      `README: ${meta.readme_filename || 'README.md'} (${meta.readme_characters || 0} ký tự).\n\n` +
       `Bước tiếp theo: mở repo, soát code, rồi bấm "Duyệt repo & sinh tutorial".`
     );
   } catch (err) {
