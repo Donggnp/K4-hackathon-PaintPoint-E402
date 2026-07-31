@@ -443,21 +443,26 @@ def call_openai_chat(messages, model=None, temperature=0.4):
     if not key or key == 'sk-proj-your-openai-api-key-here':
         raise ValueError("Chưa cấu hình OPENAI_API_KEY hợp lệ trong file .env!")
 
-    req = urllib.request.Request(
-        "https://api.openai.com/v1/chat/completions",
-        data=json.dumps({
-            "model": selected_model,
-            "messages": messages,
-            "temperature": temperature,
-            "response_format": {"type": "json_object"},
-        }).encode('utf-8'),
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
-        method='POST',
-    )
+    payload = {
+        "model": selected_model,
+        "messages": messages,
+        "response_format": {"type": "json_object"},
+    }
+    if temperature is not None:
+        payload["temperature"] = temperature
+
+    def _do_request(body_dict):
+        req = urllib.request.Request(
+            "https://api.openai.com/v1/chat/completions",
+            data=json.dumps(body_dict).encode('utf-8'),
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+            method='POST',
+        )
+        with urllib.request.urlopen(req, timeout=600) as response:
+            return json.loads(response.read().decode('utf-8'))
 
     try:
-        with urllib.request.urlopen(req, timeout=600) as response:
-            res_data = json.loads(response.read().decode('utf-8'))
+        res_data = _do_request(payload)
     except urllib.error.HTTPError as e:
         # OpenAI trả lý do THẬT trong thân phản hồi. Nuốt mất nó rồi chỉ hiện
         # "HTTP Error 404" là kiểu lỗi khiến người dùng ngồi đoán vô ích.
@@ -467,17 +472,30 @@ def call_openai_chat(messages, model=None, temperature=0.4):
         except Exception:
             detail = e.reason or str(e)
 
-        if e.code == 404:
-            raise RuntimeError(
-                f"Không tìm thấy model '{selected_model}'. OpenAI báo: {detail}\n"
-                f"Nguyên nhân thường gặp: gõ sai tên model, hoặc tài khoản chưa được cấp quyền dùng model này.\n"
-                f"Hãy sửa OPENAI_MODEL trong file .env (ví dụ: gpt-5-mini) rồi KHỞI ĐỘNG LẠI server."
-            ) from None
-        if e.code == 401:
-            raise RuntimeError(f"OPENAI_API_KEY không hợp lệ. OpenAI báo: {detail}") from None
-        if e.code == 429:
-            raise RuntimeError(f"Bị giới hạn tần suất hoặc hết hạn mức. OpenAI báo: {detail}") from None
-        raise RuntimeError(f"OpenAI trả lỗi HTTP {e.code}: {detail}") from None
+        # Nếu model không hỗ trợ custom temperature (ví dụ: o1, o3, gpt-5...), tự động thử lại bỏ temperature
+        if e.code == 400 and "temperature" in detail and "temperature" in payload:
+            del payload["temperature"]
+            try:
+                res_data = _do_request(payload)
+            except urllib.error.HTTPError as e2:
+                try:
+                    body2 = json.loads(e2.read().decode('utf-8'))
+                    detail = (body2.get('error') or {}).get('message') or str(body2)
+                except Exception:
+                    detail = e2.reason or str(e2)
+                raise RuntimeError(f"OpenAI trả lỗi HTTP {e2.code}: {detail}") from None
+        else:
+            if e.code == 404:
+                raise RuntimeError(
+                    f"Không tìm thấy model '{selected_model}'. OpenAI báo: {detail}\n"
+                    f"Nguyên nhân thường gặp: gõ sai tên model, hoặc tài khoản chưa được cấp quyền dùng model này.\n"
+                    f"Hãy sửa OPENAI_MODEL trong file .env (ví dụ: gpt-5-mini) rồi KHỞI ĐỘNG LẠI server."
+                ) from None
+            if e.code == 401:
+                raise RuntimeError(f"OPENAI_API_KEY không hợp lệ. OpenAI báo: {detail}") from None
+            if e.code == 429:
+                raise RuntimeError(f"Bị giới hạn tần suất hoặc hết hạn mức. OpenAI báo: {detail}") from None
+            raise RuntimeError(f"OpenAI trả lỗi HTTP {e.code}: {detail}") from None
     except urllib.error.URLError as e:
         raise RuntimeError(f"Không kết nối được tới OpenAI: {e.reason}") from None
 

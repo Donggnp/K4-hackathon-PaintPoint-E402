@@ -7,7 +7,14 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 - **Core JTBD**: Học và hiểu sâu bản chất lý thuyết AI (AI Agent, Product Design) để làm bài thực hành codelab buổi chiều trơn tru và tự tin, không bị phụ thuộc lạm dụng AI code generation khiến mất niềm tin và khó hiểu bài.
 - **Problem statement**: Học viên tham gia bài thực hành codelab 4 tiếng buổi chiều dưới áp lực thời gian gấp gáp, thường lạm dụng AI gõ prompt copy-paste code mà không hiểu rõ bản chất lý thuyết đã học buổi sáng, dẫn đến gặp lỗi không biết cách sửa và khó tích hội tụ kiến thức.
 - **Evidence**:
-  - Số liệu mining / kết quả khảo sát: Khảo sát 20/20 học viên lớp AI Thực Chiến, 85% (17/20) xác nhận họ gặp áp lực lớn ở bài lab 4 tiếng buổi chiều và muốn có 1 bài Mini Lab 15 phút buổi sáng ngay sau giờ lý thuyết để "thông tư tưởng" code trước khi vào trận.
+  - Số liệu mining / kết quả khảo sát: 
+    - Khảo sát 20/20 học viên lớp AI Thực Chiến (85% gặp áp lực bài lab 4 tiếng và muốn có bài Mini Lab 15 phút buổi sáng).
+    - Phân tích chi tiết từ file khảo sát 28 học viên ([Khảo sát về việc học lý thuyết và thực hành lab.csv](file:///d:/HocTap/AIinAction/K4-hackathon-PaintPoint-E402/validation/Kh%E1%BA%A3o%20s%C3%A1t%20v%E1%BB%81%20vi%E1%BB%87c%20h%E1%BB%8Dc%20l%C3%BD%20thuy%E1%BA%BFt%20v%C3%A0%20th%E1%BB%B1c%20h%E1%BB%8Dc%20lab.csv)):
+      + **96.4%** (27/28) học viên sẵn sàng làm bài Mini Codelab ngắn (15–30 phút) ngay sau giờ lý thuyết để hiểu sâu workflow và tự code from scratch (57.1% chắc chắn làm, 39.3% làm khi rảnh).
+      + **89.3%** (25/28) học viên gặp khó khăn lớn hoặc không tự làm được bài lab nếu không dùng AI (67.9% chỉ làm được một ít, 21.4% không làm được tí nào).
+      + **64.3%** (18/28) học viên nhận thấy khoảng cách lớn giữa lý thuyết buổi sáng và thực hành lab chiều ("hiểu lý thuyết nhưng bài lab khó nếu không dùng AI").
+      + **53.6%** (15/28) học viên sau buổi lab vẫn chỉ "hơi hơi" hoặc "không hiểu tí gì" về workflow & code implementation thực tế.
+      + **67.9%** (19/28) học viên cho biết chỉ tiếp thu được $\le 50\%$ kiến thức khi chỉ nghe giảng lý thuyết slide buổi sáng.
   - ≥5 quote/ví dụ nguyên văn + nguồn:
     1. *"Buổi sáng nghe slide ReAct hay lắm nhưng đến chiều đụng bài lab 4 tiếng ngợp quá, chỉ biết nhờ ChatGPT viết giùm mà không hiểu nó chạy sao."* (Học viên U04)
     2. *"Giá như sáng có bài test code nhỏ 15 phút làm lại theo slide thì chiều đỡ mất 1 tiếng rưỡi chỉ để setup environment và mò prompt."* (Học viên U12)
